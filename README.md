@@ -9,3 +9,6 @@ Some samples tracks are given inside the `tracks` folder, whereas some trained m
 The `[Demo]` key inside the configuration is used for `demo.py`, where the corresponding map and model get loaded.
 
 The `[Draw]` key inside the configuration is used for `draw.py`, where the name stands for the outputted image. Press `s` to save.
+
+## Prerequisites
+Only a valid python installation with the modules `numpy` and `pygame` is required.
