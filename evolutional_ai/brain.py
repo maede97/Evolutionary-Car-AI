@@ -1,6 +1,8 @@
 import math
 import numpy as np
-import utils
+import os
+
+from . import utils
 
 def sigmoid(x):
     """ computes sigmoid of x """
@@ -54,10 +56,10 @@ class Model:
         return ret
 
     def save_to_file(self, filename):
-        utils.save_genome(filename, self.model.get_weights())
+        np.savetxt(os.path.join(utils.MODELS_PATH, filename), self.get_weights())
 
     def load_from_file(self, filename):
-        self.set_weights(utils.load_genome(filename))
+        self.set_weights(np.loadtxt(os.path.join(utils.MODELS_PATH, filename)))
 
     def set_weights(self, w):
         """ set weights from a vector """
@@ -90,6 +92,3 @@ class Model:
         #x3 = np.maximum(0.0, x3)
 
         return x3
-
-if __name__ == "__main__":
-    print("Do not run this directly.")

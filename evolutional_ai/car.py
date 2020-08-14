@@ -1,8 +1,9 @@
-from brain import Model
-import utils
 import math
 import pygame
 import numpy as np
+
+from . import brain
+from . import utils
 
 class Car:
     def __init__(self, position, angle, raceTrack):
@@ -14,7 +15,7 @@ class Car:
         self.raceTrack = raceTrack
 
         # create the model (random init)
-        self.model = Model()
+        self.model = brain.Model()
 
         self.reset(position, angle)
 
@@ -111,6 +112,3 @@ class Car:
                 xp = self.position[0] +inp[0,i] * utils.MAX_DIST * math.sin(math.radians(-angle + self.angle))
                 yp = self.position[1] + inp[0,i] * utils.MAX_DIST * math.cos(math.radians(-angle + self.angle))
                 pygame.draw.line(window, utils.COL_BLUE, self.position, (int(xp),int(yp)))            
-
-if __name__ == "__main__":
-    print("Do not run this directly.")

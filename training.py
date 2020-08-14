@@ -4,22 +4,26 @@ import pygame
 import math
 
 # all imports from these files
-import car
-import utils
-import brain
+from evolutional_ai import car
+from evolutional_ai import utils
+from evolutional_ai import brain
+from evolutional_ai import track
 
 if __name__ == "__main__":
     pygame.init()
     font = pygame.font.Font(pygame.font.get_default_font(), 12)
 
-    background, start_point, direction = utils.loadBackgroundImage()
+    track = track.Track(utils.TRAINING_TRACK)
+    track.load()
+
+    start_point, direction = track.get_start_info()
 
     window = pygame.display.set_mode(utils.SIZE)
 
     # Init cars
     cars = []
     for i in range(utils.CARS_PER_GEN):
-        cars.append(car.Car(start_point, direction, background))
+        cars.append(car.Car(start_point, direction, track.image))
     
     finished = False
     restart = False
@@ -27,30 +31,33 @@ if __name__ == "__main__":
     generation = 1
 
     # Overall
-    best_fitness = 0
-    best_fitness_genome = None
+    best_fitness = -1000
+    best_fitness_i = None
 
     # This generation
-    curr_best_fitness = 0
+    curr_best_fitness = -1000
     curr_best_fitness_i = None
+
+    if utils.MAX_ITERATIONS_FROM_TRACK_LENGTH:
+        utils.MAX_ITERATIONS = int(1.5 * track.get_length())
 
     while not finished:
         pygame.display.set_caption(f"Generation {generation} - Fitness: {best_fitness}")
         window.fill(utils.COL_BLACK)
 
         if restart:
-            # save best fitness
-            if utils.AUTO_SAVE_BEST_GENOME:
-                utils.save_genome(utils.AUTO_SAVE_FILENAME, best_fitness_genome)
-
             generation += 1
             
-            utils.MAX_ITERATIONS += 10
-            if generation > 20 and iterations == utils.MAX_ITERATIONS:
-                utils.MAX_ITERATIONS += 100
+            if not utils.MAX_ITERATIONS_FROM_TRACK_LENGTH:
+                utils.MAX_ITERATIONS += utils.MAX_ITERATIONS_ADD
+            
             iterations = 0
             # sort vector of cars based on fitness
             cars_sorted = sorted(cars, key=lambda c: -c.fitness)
+
+            # save best fitness
+            if utils.AUTO_SAVE_BEST_GENOME:
+                cars[best_fitness_i].model.save_to_file(utils.AUTO_SAVE_FILENAME)
 
             # best cars at the front, use first half + mutated for second one
             half = len(cars) // 2
@@ -66,8 +73,9 @@ if __name__ == "__main__":
                 c.reset(start_point, direction)
                 c.model.set_weights(brain.mutate(c.model.get_weights())) # mutate genes
             cars = cars_sorted
+
             restart = False
-            curr_best_fitness = 0
+            curr_best_fitness = -1000
             curr_best_fitness_i = None
 
         # consume all pygame events
@@ -80,10 +88,10 @@ if __name__ == "__main__":
                     finished = True
                 elif event.key == ord('s'):
                     if not curr_best_fitness_i == None:
-                        utils.save_genome(cars[curr_best_fitness_i].model.get_weights())
+                        cars[curr_best_fitness_i].model.save_to_file(utils.AUTO_SAVE_FILENAME)
 
         # add background to window
-        window.blit(background, (0,0))
+        window.blit(track.image, (0,0))
 
         # Update all cars
         crashed = 0
@@ -94,14 +102,13 @@ if __name__ == "__main__":
                 if crashed == len(cars):
                     restart = True
                     break
+
             # calculate fitness
-            dx = start_point[0] - c.position[0]
-            dy = start_point[1] - c.position[1]
-            c.fitness = math.sqrt(dx ** 2 + dy ** 2) # distance to start point
+            c.fitness = track.get_fitness(c.position[0], c.position[1]) - utils.TIME_PENALTY * iterations
 
             if c.fitness > best_fitness:
                 best_fitness = c.fitness
-                best_fitness_genome = c.model.get_weights()
+                best_fitness_i = i
 
             if c.fitness > curr_best_fitness:
                 curr_best_fitness = c.fitness

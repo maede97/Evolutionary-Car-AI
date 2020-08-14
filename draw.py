@@ -1,23 +1,20 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-import utils
+import math
+
+from evolutional_ai import utils
+from evolutional_ai import track
 
 if __name__ == "__main__":
     pygame.init()
 
+    track = track.Track(utils.DRAW_TRACK)
+
     window = pygame.display.set_mode(utils.SIZE)
     pygame.display.set_caption("Draw map")
 
-    objects = []
-
     finish = False
-
-    radius = 15
-
-    start_pos = None
-    direction = None
-
     while not finish:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -27,43 +24,32 @@ if __name__ == "__main__":
                 if event.key == pygame.K_ESCAPE:
                     finish = True
                 elif event.key == ord('s'):
-                    pygame.image.save(window, os.path.join(os.path.dirname(os.path.abspath(__file__)), utils.DRAW_RACETRACK))
-        if pygame.mouse.get_pressed()[0]:
-            # draw white line on black screen
-            cx,cy = pygame.mouse.get_pos()
-            objects.append((cx,cy,radius))
-            if len(objects) == 1:
-                # set start position
-                start_pos = (cx,cy)
-            if direction == None and abs(start_pos[0] - cx) ** 2 + abs(start_pos[1] - cy) ** 2 > 5:
-                direction = cx,cy
-
-        if pygame.mouse.get_pressed()[2]:
-            # Pop objects from white buffer
-            if len(objects) == 0:
-                pass
-            else:
-                objects.pop()
-                # remove start position as well
-                if len(objects) == 0:
-                    start_pos = None
-                if len(objects) == 99:
-                    direction = None
-
+                    track.set_image(window)
+                    track.save()
+                    #pygame.image.save(window, os.path.join(os.path.dirname(os.path.abspath(__file__)), utils.DRAW_RACETRACK))
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    track.add_point(event.pos[0], event.pos[1])
+                elif event.button == 3:
+                    track.remove_point()
+        
         window.fill((0,0,0))
 
-        for cx, cy, dim in objects:
-            pygame.draw.circle(window, utils.COL_WHITE, (cx,cy), dim)
+        # for now: draw circles from tracks data
+        if track.data:
+            if len(track.data) == 1:
+                pygame.draw.circle(window, utils.COL_WHITE, track.data[0], track.thickness)
+            # get first data point
+            ax,ay = track.data[0]
+            for cx, cy in track.data[1:]:
+                # calculate direction
+                lineDir = cx - ax, cy - ay
+                line_length = math.sqrt(lineDir[0] ** 2 + lineDir[1] ** 2)
+                lineDir = lineDir[0] / line_length, lineDir[1] / line_length
+                for i in range(int(math.sqrt((ax-cx)**2 + (ay-cy)**2))):
+                    pygame.draw.circle(window, utils.COL_WHITE, (ax+int(i*lineDir[0]), ay + int(i * lineDir[1])), track.thickness)
 
-        if start_pos == None:
-            pass
-        else:
-            # draw a green circle, start position
-            window.set_at(start_pos, utils.COL_GREEN)
-        if direction == None:
-            pass
-        else:
-            window.set_at(direction, utils.COL_BLUE)
-        
+                ax,ay = cx,cy
+
         pygame.display.flip()
     pygame.quit()
