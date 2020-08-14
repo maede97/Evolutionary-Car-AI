@@ -3,7 +3,6 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import math
 
-# all imports from these files
 from evolutional_ai import car
 from evolutional_ai import utils
 from evolutional_ai import brain
