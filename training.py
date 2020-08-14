@@ -38,6 +38,18 @@ if __name__ == "__main__":
     curr_best_fitness = -1000
     curr_best_fitness_i = None
 
+    if utils.INIT_FROM_MODEL:
+        for i,c in enumerate(cars):
+            c.model.load_from_file(utils.INIT_MODEL)
+            if i > 1:
+                # mutate all but one
+                c.model.set_weights(brain.mutate(c.model.get_weights()))
+
+        if not utils.MAX_ITERATIONS_FROM_TRACK_LENGTH:
+            utils.MAX_ITERATIONS += utils.INIT_START_GENERATION * utils.MAX_ITERATIONS_ADD
+        generation = utils.INIT_START_GENERATION    
+
+
     if utils.MAX_ITERATIONS_FROM_TRACK_LENGTH:
         utils.MAX_ITERATIONS = int(1.5 * track.get_length())
 

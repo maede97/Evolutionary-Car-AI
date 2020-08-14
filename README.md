@@ -1,6 +1,8 @@
 # Evolutionary-Car-AI
 A simple evolutionary algorithm for a car-AI written in python and pygame
 
+![alt text](res/training.PNG "The training file in action.")
+
 ## Configuration
 All configuration variables are set inside the `config.ini` file.
 

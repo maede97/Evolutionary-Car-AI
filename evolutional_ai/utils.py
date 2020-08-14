@@ -19,6 +19,9 @@ MAX_ITERATIONS = config.getint("Training", "MAX_ITERATIONS", fallback=100)
 TIME_PENALTY = config.getfloat("Training", "TIME_PENALTY", fallback=0.01)
 MAX_ITERATIONS_FROM_TRACK_LENGTH = config.getboolean("Training", "MAX_ITERATIONS_FROM_TRACK_LENGTH", fallback=True)
 MAX_ITERATIONS_ADD = config.getint("Training", "MAX_ITERATIONS_ADD", fallback=10)
+INIT_FROM_MODEL = config.getboolean("Training", "INIT_FROM_MODEL", fallback=True)
+INIT_MODEL = config.get("Training", "INIT_MODEL", fallback="autosave.txt")
+INIT_START_GENERATION = config.getint("Training", "INIT_START_GENERATION", fallback=1)
 
 # Display
 SIZE = config.getint("Display", "SIZE_X", fallback=800), config.getint("Display", "SIZE_Y", fallback=600)
