@@ -35,6 +35,7 @@ MAX_TURN_VELOCITY = config.getfloat("Car", "MAX_TURN_VELOCITY", fallback=5.0)
 # Brain
 CROSS_OVER_PROB = config.getfloat("Brain", "CROSS_OVER_PROB", fallback=0.2)
 MUTATION_PROB = config.getfloat("Brain", "MUTATION_PROB", fallback=0.5)
+HIDDEN_LAYERS = config.get("Brain", "HIDDEN_LAYERS", fallback="4,3")
 
 # Demo
 DEMO_BRAIN = config.get("Demo", "BRAIN_TO_LOAD", fallback="")

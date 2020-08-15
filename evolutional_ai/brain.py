@@ -39,33 +39,58 @@ class Model:
     """ holds the brain of an agent """
     def __init__(self):
         # create weights
-        self.W1 = 2.0 * np.random.random((4, 6)) - 1.0
-        self.W2 = 2.0 * np.random.random((3, 5)) - 1.0
-        self.W3 = 2.0 * np.random.random((2, 4)) - 1.0
+
+        self.layers = [int(x) for x in utils.HIDDEN_LAYERS.split(",")]
+
+        # create weights
+        self.weights = []
+        if len(self.layers) == 0:
+            # only input to output
+            self.weights.append(2.0 * np.random.random((6, 2)) - 1.0)
+        else:
+            inp_size = 5
+            for i in range(len(self.layers)):
+                self.weights.append(2.0 * np.random.random((self.layers[i], inp_size + 1)) - 1.0)
+                inp_size = self.layers[i]
+            # append last
+            self.weights.append(2.0 * np.random.random((2, inp_size + 1)) -1.0)
 
     def get_weights(self):
         """ returns a vector with all weights """
         # returns a huge vector of all weights
-        w1 = self.W1.flatten()
-        w2 = self.W2.flatten()
-        w3 = self.W3.flatten()
-        ret = np.zeros(24 + 15 + 8,dtype=float)
-        ret[:24] = w1
-        ret[24:39] = w2
-        ret[39:] = w3
-        return ret
+
+        # return self.weights, but flattened
+        data = []
+        for w in self.weights:
+            wf = w.flatten()
+            for x in wf:
+                data.append(x)
+
+        return np.array(data)
 
     def save_to_file(self, filename):
+        # TODO add layer size
         np.savetxt(os.path.join(utils.MODELS_PATH, filename), self.get_weights())
 
     def load_from_file(self, filename):
+        # TODO add layer size
         self.set_weights(np.loadtxt(os.path.join(utils.MODELS_PATH, filename)))
 
     def set_weights(self, w):
         """ set weights from a vector """
-        self.W1 = w[:24].reshape((4,6))
-        self.W2 = w[24:39].reshape((3,5))
-        self.W3 = w[39:].reshape((2,4))
+        i_w = 0
+        x = 0
+        y = 0
+        for i in range(len(w)):
+            self.weights[i_w][x, y] = w[i]
+            y += 1
+            if y == len(self.weights[i_w][0]):
+                y = 0
+                x += 1
+                if x == len(self.weights[i_w]): # Error here
+                    i_w += 1
+                    x = 0
+                
 
     def predict(self, inp):
         # add a bias term to inp
@@ -74,21 +99,10 @@ class Model:
         # we have now (inp, 1) inside x
 
         # forward propagation:
-        x1 = self.W1.dot(x)
-        #x1 = np.maximum(0.0, x1) # relu
-        #x1 = sigmoid(x1)
-        x1_ = np.ones((5,1), dtype=float)
-        x1_[:4, 0] = x1[:,0]
-
-        x2 = self.W2.dot(x1_)
-        #x2 = np.maximum(0.0, x2) # relu
-        #x2 = sigmoid(x2)
-        x2_ = np.ones((4,1), dtype=float)
-        x2_[:3,0] = x2[:,0]
-
-        x3 = self.W3.dot(x2_)
-        x3 = sigmoid(x3)
-        #x3 = np.tanh(x3)
-        #x3 = np.maximum(0.0, x3)
-
-        return x3
+        for layer in self.weights:
+            x = layer.dot(x)
+            x_ = np.ones((len(x)+1, 1), dtype=float)
+            x_[:-1, 0] = x[:, 0]
+            x = x_
+        
+        return sigmoid(x)
