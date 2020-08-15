@@ -140,7 +140,8 @@ if __name__ == "__main__":
 
             # Get inputs for this car as well
             inp = cars[curr_best_fitness_i].compute_input_vector()
-            text1 = font.render("Inputs: {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}".format(*inp[0]), True, utils.COL_WHITE)
+            inp_text = "Inputs: " + "{:.3f} " * len(utils.CAR_INPUT_ANGLES.split(","))
+            text1 = font.render(inp_text.format(*inp[0]), True, utils.COL_WHITE)
             window.blit(text1, (500,15))
 
             text2 = font.render("Velocity: {:.3f}, Angle Velocity: {:.3f}".format(cars[curr_best_fitness_i].velocity, cars[curr_best_fitness_i].angle_velocity), True, utils.COL_WHITE)

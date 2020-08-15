@@ -31,6 +31,7 @@ CAR_WIDTH = config.getint("Car", "CAR_WIDTH", fallback=6)
 CAR_LENGTH = config.getint("Car", "CAR_HEIGHT", fallback=12)
 MAX_DIST = config.getint("Car", "MAX_DIST", fallback=100)
 MAX_TURN_VELOCITY = config.getfloat("Car", "MAX_TURN_VELOCITY", fallback=5.0)
+CAR_INPUT_ANGLES = config.get("Car", "INPUT_ANGLES", fallback="-90,-45,0,45,90")
 
 # Brain
 CROSS_OVER_PROB = config.getfloat("Brain", "CROSS_OVER_PROB", fallback=0.2)

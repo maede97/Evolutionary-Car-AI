@@ -42,13 +42,15 @@ class Model:
 
         self.layers = [int(x) for x in utils.HIDDEN_LAYERS.split(",")]
 
+        self.input_size = len(utils.CAR_INPUT_ANGLES.split(","))
+
         # create weights
         self.weights = []
         if len(self.layers) == 0:
             # only input to output
-            self.weights.append(2.0 * np.random.random((6, 2)) - 1.0)
+            self.weights.append(2.0 * np.random.random((self.input_size + 1, 2)) - 1.0)
         else:
-            inp_size = 5
+            inp_size = self.input_size
             for i in range(len(self.layers)):
                 self.weights.append(2.0 * np.random.random((self.layers[i], inp_size + 1)) - 1.0)
                 inp_size = self.layers[i]
@@ -94,8 +96,8 @@ class Model:
 
     def predict(self, inp):
         # add a bias term to inp
-        x = np.ones((6,1),dtype=float)
-        x[:5, 0] = inp
+        x = np.ones((self.input_size + 1, 1),dtype=float)
+        x[:self.input_size, 0] = inp
         # we have now (inp, 1) inside x
 
         # forward propagation:

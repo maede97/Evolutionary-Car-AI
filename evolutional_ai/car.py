@@ -14,6 +14,8 @@ class Car:
 
         self.raceTrack = raceTrack
 
+        self.input_angles = [int(x) for x in utils.CAR_INPUT_ANGLES.split(",")]
+
         # create the model (random init)
         self.model = brain.Model()
 
@@ -74,8 +76,11 @@ class Car:
         # the distance to the next wall for 5 directions:
         # left, frontLeft, front, frontRight, right
         # if no wall is found, return MAX_DIST
-        ret = np.zeros((1,5), dtype=float)
-        ret[0,:] = self.get_distance_in_direction(-90), self.get_distance_in_direction(-45), self.get_distance_in_direction(0), self.get_distance_in_direction(45), self.get_distance_in_direction(90)
+
+        ret = np.zeros((1,len(self.input_angles)), dtype=float)
+
+        for x in range(len(self.input_angles)):
+            ret[0,x] = self.get_distance_in_direction(self.input_angles[x])
         return ret
     
     def perform_autonomous_action(self):
@@ -108,7 +113,7 @@ class Car:
         window.blit(self.draw_surface, self.rect)
         if drawLines:
             inp = self.compute_input_vector()
-            for i,angle in enumerate([-90, -45, 0, 45, 90]):
+            for i,angle in enumerate(self.input_angles):
                 xp = self.position[0] +inp[0,i] * utils.MAX_DIST * math.sin(math.radians(-angle + self.angle))
                 yp = self.position[1] + inp[0,i] * utils.MAX_DIST * math.cos(math.radians(-angle + self.angle))
                 pygame.draw.line(window, utils.COL_BLUE, self.position, (int(xp),int(yp)))            
